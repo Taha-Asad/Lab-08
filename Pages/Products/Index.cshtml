@@ -1,0 +1,73 @@
+@page
+@model PMS_CRUD_Razor.Pages.Products.IndexModel
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<h1>Product Management</h1>
+
+<p>
+    <a asp-page="Create" class="btn btn-primary">
+        Add New Product
+    </a>
+</p>
+
+@if (Model.Products.Count == 0)
+{
+    <div class="alert alert-info">
+        No products found. Add your first product.
+    </div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Image</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <td>@product.Id</td>
+                        <td>
+                            <img src="@Url.Content("~/" + product.image)"
+                                 alt="@product.Title"
+                                 style="width:70px;height:70px;object-fit:cover" />
+                        </td>
+                        <td>@product.Title</td>
+                        <td>@product.description</td>
+                        <td>@product.price</td>
+                        <td>@product.quantity</td>
+                        <td>
+                            @(product.status == "A" ? "Active" : "Inactive")
+                        </td>
+                        <td>
+                            <a asp-page="Details"
+                               asp-route-id="@product.Id"
+                               class="btn btn-sm btn-info">Details</a>
+
+                            <a asp-page="Edit"
+                               asp-route-id="@product.Id"
+                               class="btn btn-sm btn-warning">Edit</a>
+
+                            <a asp-page="Delete"
+                               asp-route-id="@product.Id"
+                               class="btn btn-sm btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
