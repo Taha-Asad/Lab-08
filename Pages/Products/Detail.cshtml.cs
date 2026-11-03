@@ -21,10 +21,11 @@ public class DetailsModel : PageModel
         var product = await _repository.GetByIdAsync(id);
 
         if (product == null)
+        {
             return NotFound();
+        }
 
         Product = product;
-
         return Page();
     }
 }

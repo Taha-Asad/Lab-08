@@ -2,96 +2,81 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using PMS_CRUD_Razor.Data;
 using PMS_CRUD_Razor.Models;
-namespace PMS_CRUD_Razor.Pages.Products.Pages;
+
+namespace PMS_CRUD_Razor.Pages.Products;
 
 public class EditModel : PageModel
 {
-        private readonly ProductRepository _repository;
-        private readonly ProductImageService _images;
+    private readonly ProductRepository _repository;
+    private readonly ProductImageService _images;
 
-        public EditModel(
-            ProductRepository repository,
-            ProductImageService images)
+    public EditModel(ProductRepository repository, ProductImageService images)
+    {
+        _repository = repository;
+        _images = images;
+    }
+
+    [BindProperty]
+    public Product Product { get; set; } = new();
+
+    [BindProperty]
+    public IFormFile? ImageFile { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(int id)
+    {
+        var product = await _repository.GetByIdAsync(id);
+
+        if (product == null)
         {
-            _repository = repository;
-            _images = images;
+            return NotFound();
         }
 
-        [BindProperty]
-        public Product Product { get; set; } = new();
+        Product = product;
+        return Page();
+    }
 
-        [BindProperty]
-        public IFormFile? ImageFile { get; set; }
-
-        public async Task<IActionResult> OnGetAsync(int id)
+    public async Task<IActionResult> OnPostAsync()
+    {
+        // Image update is optional during edit
+        if (ImageFile != null && ImageFile.Length > 0)
         {
-            var product = await _repository.GetByIdAsync(id);
+            string? error = _images.Validate(ImageFile);
+            if (error != null)
+            {
+                ModelState.AddModelError(nameof(ImageFile), error);
+            }
+        }
 
-            if (product == null)
-                return NotFound();
+        ModelState.Remove("Product.image");
+        ModelState.Remove("Product.CreatedAt");
 
-            Product = product;
-
+        if (!ModelState.IsValid)
+        {
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int id)
+        // If a new image was uploaded, save it and remove the old one
+        if (ImageFile != null && ImageFile.Length > 0)
         {
-            if (id != Product.Id)
-                return BadRequest();
+            string oldImage = Product.image;
+            string newImagePath = await _images.SaveAsync(ImageFile);
+            Product.image = newImagePath;
 
-            var existing = await _repository.GetByIdAsync(id);
-
-            if (existing == null)
-                return NotFound();
-
-            if (ImageFile != null && ImageFile.Length > 0)
+            if (!string.IsNullOrEmpty(oldImage))
             {
-                string? error = _images.Validate(ImageFile);
-
-                if (error != null)
-                    ModelState.AddModelError(nameof(ImageFile), error);
-            }
-
-            if (!ModelState.IsValid)
-            {
-                Product.image = existing.image;
-                return Page();
-            }
-
-            string oldImage = existing.image;
-            string newImage = oldImage;
-
-            if (ImageFile != null && ImageFile.Length > 0)
-                newImage = await _images.SaveAsync(ImageFile);
-
-            Product.image = newImage;
-
-            try
-            {
-                bool updated = await _repository.UpdateAsync(Product);
-
-                if (!updated)
-                {
-                    if (newImage != oldImage)
-                        _images.Delete(newImage);
-
-                    return NotFound();
-                }
-            }
-            catch
-            {
-                if (newImage != oldImage)
-                    _images.Delete(newImage);
-
-                throw;
-            }
-
-            if (newImage != oldImage)
                 _images.Delete(oldImage);
-
-            TempData["Success"] = "Product updated successfully.";
-
-            return RedirectToPage("Index");
+            }
         }
+
+        bool updated = await _repository.UpdateAsync(Product);
+
+        if (!updated)
+        {
+            ModelState.AddModelError(string.Empty, "Failed to update the product. Please try again.");
+            return Page();
+        }
+
+        TempData["Success"] = "Product updated successfully.";
+        return RedirectToPage("Index");
+    }
 }

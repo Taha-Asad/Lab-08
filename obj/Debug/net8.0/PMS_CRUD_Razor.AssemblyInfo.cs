@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PMS_CRUD_Razor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2be98bf60feafef4b8c2f6bc19afe71b0eb9601d")]
 [assembly: System.Reflection.AssemblyProductAttribute("PMS_CRUD_Razor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PMS_CRUD_Razor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

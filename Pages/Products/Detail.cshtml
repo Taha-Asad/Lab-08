@@ -1,34 +1,64 @@
 @page "{id:int}"
 @model PMS_CRUD_Razor.Pages.Products.DetailsModel
 
-
 @{
     ViewData["Title"] = "Product Details";
 }
 
-<h1>Product Details</h1>
+<div class="container mt-4">
+    <h2>Product Details</h2>
+    <hr />
 
-<div class="card" style="max-width:600px">
-    <div class="card-body">
-        <h4>@Model.Product.Title</h4>
+    <div class="card p-4 col-md-8 mx-auto">
+        <div class="row">
+            <div class="col-md-5 text-center mb-3">
+                @if (!string.IsNullOrEmpty(Model.Product.image))
+                {
+                    <img src="@Url.Content("~/" + Model.Product.image)" 
+                         alt="@Model.Product.Title" 
+                         class="img-fluid rounded border shadow-sm" 
+                         style="max-height: 250px; object-fit: cover;" />
+                }
+                else
+                {
+                    <div class="border rounded p-5 bg-light text-muted">No Image Available</div>
+                }
+            </div>
+            <div class="col-md-7">
+                <dl class="row">
+                    <dt class="col-sm-4">ID</dt>
+                    <dd class="col-sm-8">@Model.Product.Id</dd>
 
-        <img src="@Url.Content("~/" + Model.Product.image)"
-             alt="@Model.Product.Title"
-             style="width:200px;height:200px;object-fit:cover"
-             class="mb-3" />
+                    <dt class="col-sm-4">Title</dt>
+                    <dd class="col-sm-8">@Model.Product.Title</dd>
 
-        <p><strong>ID:</strong> @Model.Product.Id</p>
-        <p><strong>Description:</strong> @Model.Product.description</p>
-        <p><strong>Price:</strong> @Model.Product.price</p>
-        <p><strong>Quantity:</strong> @Model.Product.quantity</p>
-        <p>
-            <strong>Status:</strong>
-            @(Model.Product.status == "A" ? "Active" : "Inactive")
-        </p>
+                    <dt class="col-sm-4">Description</dt>
+                    <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Product.description) ? "None" : Model.Product.description)</dd>
 
-        <a asp-page="Edit" asp-route-id="@Model.Product.Id"
-           class="btn btn-warning">Edit</a>
+                    <dt class="col-sm-4">Price</dt>
+                    <dd class="col-sm-8">@Model.Product.price.ToString("C")</dd>
 
-        <a asp-page="Index" class="btn btn-secondary">Back</a>
+                    <dt class="col-sm-4">Quantity</dt>
+                    <dd class="col-sm-8">@Model.Product.quantity</dd>
+
+                    <dt class="col-sm-4">Status</dt>
+                    <dd class="col-sm-8">
+                        @if (Model.Product.status == "A" || Model.Product.status == "Available")
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <a asp-page="Edit" asp-route-id="@Model.Product.Id" class="btn btn-warning">Edit</a>
+            <a asp-page="Index" class="btn btn-secondary">Back to List</a>
+        </div>
     </div>
 </div>
